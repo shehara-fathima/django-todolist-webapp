@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Statistics</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff; /* Light blue background */
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 80%;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: #2c3e50;
+        }
+
+        .summary-cards {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .card {
+            width: 30%;
+            padding: 15px;
+            border-radius: 8px;
+            color: white;
+            text-align: center;
+        }
+
+        .card h5 {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .card .card-text {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .bg-info { background-color: #17a2b8; }
+        .bg-success { background-color: #28a745; }
+        .bg-danger { background-color: #dc3545; }
+
+        .progress-container {
+    margin-top: 30px;
+}
+
+.progress {
+    display: flex;
+    height: 25px;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    display: inline-block;
+    transition: width 0.3s ease;
+}
+
+.bg-success-bar {
+    background-color: #28a745; /* Green for completed tasks */
+}
+
+.bg-danger-bar {
+    background-color: #dc3545; /* Red for pending tasks */
+}
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 30px;
+        }
+
+        .alert-info {
+            background-color: #d1ecf1;
+            border-color: #bee5eb;
+            color: #0c5460;
+        }
+
+        table {
+            width: 100%;
+            margin-top: 30px;
+            border-collapse: collapse;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f4f4f4;
+        }
+
+        .text-muted {
+            color: #6c757d;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>📊 Task Statistics</h2>
+        <!-- Home Button Below Toolbar -->
+    <form method="get">
+    <div class="home-button-container">
+        <button type="submit" name="action" value="home">🏠 Home</button>
+    </div>
+    </form>
+
+        <!-- Summary Cards -->
+        <div class="summary-cards">
+            <div class="card bg-info">
+                <h5>Total Tasks (All Users)</h5>
+                <p class="card-text">{{ total_tasks }}</p>
+            </div>
+            <div class="card bg-success">
+                <h5>Completed Tasks</h5>
+                <p class="card-text">{{ total_completed_tasks }}</p>
+            </div>
+            <div class="card bg-danger">
+                <h5>Pending Tasks</h5>
+                <p class="card-text">{{ total_pending_tasks }}</p>
+            </div>
+        </div>
+
+        <!-- Task Completion Progress Bar -->
+        <!-- Task Completion Progress Bar -->
+<div class="progress-container">
+    <h3>Your Task Completion Overview</h3>
+    <div class="progress">
+        <div class="progress-bar bg-success-bar" style="width: {{ logged_in_user_completed_tasks|floatformat:2 }}%;"></div>
+        <div class="progress-bar bg-danger-bar" style="width: {{ logged_in_user_pending_tasks|floatformat:2 }}%;"></div>
+    </div>
+</div>
+
+
+        <!-- Task Comparison -->
+        <h3 class="text-muted">Comparison with Global Data</h3>
+        <p class="text-muted">Your task completion ratio: {{ logged_in_user_completed_tasks|floatformat:2 }} / {{ logged_in_user_total_tasks }}</p>
+        <p class="text-muted">Global task completion ratio: {{ total_completed_tasks|floatformat:2 }} / {{ total_tasks }}</p>
+
+        <!-- Suggestion -->
+        <div class="alert alert-info">
+            <h4>💡 Smart Suggestion</h4>
+            <p>{{ suggestion }}</p>
+        </div>
+
+        <!-- Task Categories Table -->
+        <h3 class="text-muted">Task Categories</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>Number of Tasks</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for category in category_distribution %}
+                <tr>
+                    <td>{{ category.category }}</td>
+                    <td>{{ category.count }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="2" class="text-center text-muted">No categories available.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
+
+
+
+

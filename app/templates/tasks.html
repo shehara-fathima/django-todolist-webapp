@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Your Tasks</title>
+</head>
+<style>
+    body {
+      background-color:#f2fdb2;
+      font-family: Dancing script, cursive;
+    }
+    h1 {
+      font-family: 'Pacifico', cursive; /* Cool, handwritten style */
+      font-style: italic;              /* Italic style */
+      text-align: center;              /* Center the heading horizontally */
+      margin: 0;                       /* Remove default margin */
+      padding: 10px 0;                 /* Optional: vertical padding for breathing space */
+      font-size: 40px;
+    }
+    .rotated-image {
+      /* Rotate the image 180 degrees */
+      transform: rotate(180deg);
+      /* Adjust the size */
+      width: 100px;      /* Set a desired width */
+      height: 20px;      /* Maintain the aspect ratio */
+      display: block;    /* Makes margin auto centering work if needed */
+      margin: 1px auto; /* Centers the image horizontally and adds vertical spacing */
+    }
+    /* Main container for the two sections in a 2:3 ratio */
+    .main-container {
+      display: flex;
+      width: 100%;
+      padding: 20px;
+    }
+    /* Left section: takes 1/4 of the width */
+    .left-section {
+      flex: 1;
+      padding: 20px;
+      background-color: #fff;
+      height:380px
+    }
+
+    /* Right section: takes 3/4 of the width */
+    .right-section {
+      flex: 2;
+      padding: 20px;
+      background-color:#fee9a4;
+      height:380px;
+      border-left: 1px solid #ccc;
+    }
+    .new-section {
+      flex: 1;
+      padding: 20px;
+      background-color:#ddfa7a;
+      height:380px;
+      border-left: 1px solid #ccc;
+    }
+    h2 {
+      text-align: center;
+      margin-top:7px
+    }
+    details {
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 5px;
+    }
+    summary {
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .new-task-btn {
+          display: inline-flex;
+          align-items: center;
+          padding: 10px 15px;
+          background-color: #28a745;
+          color: white;
+          text-decoration: none;
+          border-radius: 4px;
+          font-size: 16px;
+          margin-bottom: 10px;
+    }
+    .new-task-btn .plus {
+          font-size: 20px;
+          margin-right: 8px;
+          font-weight: bold;
+      }
+      /* Form field styling */
+    form input[type="text"],
+      form textarea,
+      form select {
+          display: block;
+          width: 70%;
+          padding: 8px;
+          margin-bottom: 15px;
+          font-size: 14px;
+          box-sizing: border-box;
+      }
+    form button {
+          padding: 10px 15px;
+          background-color: #fff;
+          color: #000000;
+          border-color: #000000;
+          border-radius: 4px;
+          cursor: pointer;
+      }
+    .submit-btn {
+    background-color: #4553c7;  /* Change this to any color */
+    color: white;
+    text-align: center;
+    border: none;
+    padding: 10px 15px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+    }
+    .submit-btn:hover {
+    background-color: darkblue;  /* Change hover effect */
+    }
+    .show-form-btn {
+        background-color: green; /* Change to any color */
+        color: white;
+        font-size: 16px;
+        padding: 10px 20px;
+        border: none;
+        cursor: pointer;
+    }
+
+</style>
+<body>
+<h1>My Tasks <br>
+    <form method="get">
+    <button class="submit-btn" type="submit" name="action" value="home">Home</button>
+</form></h1>
+<!--<img src='pencil.png' alt="Example Image" class="rotated-image">-->
+<div class="main-container">
+    <div class="left-section">
+        <h2>Tasks</h2>
+        <!-- Pending Tasks Section -->
+<details {% if selected_task and selected_task.status == "pending" or pending_tasks %}open{% endif %}>
+    <summary>Pending</summary>
+    <ul>
+        {% for task in pending_tasks %}
+        <li>
+            {% if selected_task and selected_task.id == task.id %}
+                <strong>{{ task.title }}</strong>  <!-- Highlight selected task -->
+            {% else %}
+                <a href="?task_id={{ task.id }}">{{ task.title }}</a>
+            {% endif %}
+        </li>
+        {% empty %}
+        <li>No pending tasks</li>
+        {% endfor %}
+    </ul>
+</details>
+
+<!-- Completed Tasks Section -->
+<details {% if selected_task and selected_task.status == "completed" or completed_tasks %}open{% endif %}>
+    <summary>Completed</summary>
+    <ul>
+        {% for task in completed_tasks %}
+        <li>
+            {% if selected_task and selected_task.id == task.id %}
+                <strong>{{ task.title }}</strong>  <!-- Highlight selected task -->
+            {% else %}
+                <a href="?task_id={{ task.id }}">{{ task.title }}</a>
+            {% endif %}
+        </li>
+        {% empty %}
+        <li>No completed tasks</li>
+        {% endfor %}
+    </ul>
+</details>
+
+    </div>
+    <div class="right-section">
+        <p>You have <strong>{{num_pending}}</strong> pending tasks.</p>
+        {% if not show_form %}
+        <a href="?show_form=true">
+            <button class="show-form-btn">➕ New Task</button>
+        </a>
+    {% else %}
+        <h3>Create New Task</h3>
+
+        <form method="post">
+
+          {% csrf_token %}
+           <label>Task name</label><input type="text" name="title" placeholder="Your task">
+           <label>Description</label><input type="text" name="description" placeholder="Tell us more about your task">
+           <label for="choice">Category</label>
+           <select id="choice" name="category">
+              <option value="Work">Work</option>
+              <option value="Personal">Personal</option>
+              <option value="Other">Other</option>
+           </select>
+            <button type="submit" name="action" value="confirm" style="font-size: 22px; color: green;">✔</button>
+            Completed
+            <button type="submit" name="action" value="cancel" style="font-size: 22px; color: red;">✖</button>
+            Yet to complete
+        </form>
+
+
+
+        {% endif %}
+    </div>
+    <div class="new-section">
+        <div class="details">
+        {% if selected_task %}
+            <h2>{{ selected_task.title }}</h2>
+            <p><strong>Description:</strong> {{ selected_task.description }}</p>
+            <p><strong>Category:</strong> {{ selected_task.category }}</p>
+            <p><strong>Status:</strong> {{ selected_task.status}}</p>
+<!--            edit button-->
+            <form method="get">
+                <input type="hidden" name="task_id" value="{{ selected_task.id }}">
+                <button type="submit" name="action" value="edit">Edit Status</button>
+            </form>
+<!--            delete button-->
+            <form method="get">
+                <input type="hidden" name="task_id" value="{{ selected_task.id }}">
+                <button type="submit" name="action" value="delete" style="background-color: red; color: white;">Delete Task</button>
+            </form>
+        {% endif %}
+            <!-- Edit Status Form -->
+            {% if show_status_form %}
+            <form method="post" action="?task_id={{ selected_task.id }}&action=edit">
+            {% csrf_token %}
+            <label for="status">Update Status:</label>
+               <select name="status" id="status">
+                   <option value="pending" {% if selected_task.status == "pending" %}selected{% endif %}>Pending</option>
+                   <option value="completed" {% if selected_task.status == "completed"%}selected{% endif %}>Completed</option>
+               </select>
+               <button type="submit" name="action" value="update_status">Update</button>
+            </form>
+            {% endif %}
+
+
+            <!-- Delete Confirmation Form -->
+            {% if show_delete_form %}
+            <form method="post" action="?task_id={{ selected_task.id }}&action=delete">
+            {% csrf_token %}
+           <p>Are you sure you want to delete this task?</p>
+           <button type="submit" name="action" value="delete_task" style="background-color: red; color: white;">Confirm Delete</button>
+           <button type="submit" name="action" value="no">Cancel</button>
+           </form>
+           {% endif %}
+            {% if updated %}
+            <p style="color: green;">Task updated successfully!</p>
+            {% endif %}
+
+             {% if deleted %}
+              <p style="color: red;">Task deleted successfully!</p>
+              {% endif %}
+
+    </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login</title>
+  <!-- Link to Google Fonts for a modern sans-serif font -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    /* Reset and apply a modern font */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      height: 100vh;
+      font-family: 'Roboto', sans-serif;
+      /* Modern gradient background */
+      background: linear-gradient(125deg, #afb7f8, #5563DE);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Modern card design for the form container */
+    .center-box {
+      width: 400px;
+      padding: 30px;
+      border-radius: 12px;
+      background-color: #D3C5E5;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      text-align: center;
+    }
+
+    .center-box h2 {
+      font-weight: 500;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .center-box label {
+      display: block;
+      margin: 15px 0 5px;
+      font-size: 0.9em;
+      color: #555;
+      text-align: left;
+    }
+
+    .center-box input[type="text"],
+    .center-box input[type="password"],
+    .center-box textarea {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 1em;
+      outline: none;
+      transition: border-color 0.3s ease;
+    }
+
+    .center-box input[type="text"]:focus,
+    .center-box input[type="password"]:focus,
+    .center-box textarea:focus {
+      border-color: #5563DE;
+    }
+
+    .center-box input[type="submit"] {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 6px;
+      background-color: #5563DE;
+      color: #fff;
+      font-size: 1em;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      margin-top: 10px;
+    }
+
+    .center-box input[type="submit"]:hover {
+      background-color: #4553c7;
+    }
+  </style>
+</head>
+<body>
+  <div class="center-box">
+    <h2>LOG IN</h2>
+    <form method="post">{%csrf_token%}
+      <label>Username</label>
+      <input type="text" name="name" placeholder="Your Username" required>
+
+      <label>Password</label>
+      <input type="password" name="password" placeholder="Your Password" required>
+
+      <input type="submit" value="Login">
+    </form>
+  </div>
+</body>
+</html>

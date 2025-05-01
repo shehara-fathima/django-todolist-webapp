@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Doodle hub</title>
+<style>
+/* General Styles */
+body {
+    font-family: "Poppins", sans-serif;
+    background-color: #fadbd8;
+    color: #333;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+}
+
+/* Navigation Bar */
+
+.submit-button {
+    background: #007bff;
+    color: white;
+    text-decoration: none;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.submit-button:hover {
+    background: #0056b3;
+}
+
+/* Page Title */
+h1 {
+    margin: 20px;
+    font-size: 30px;
+    color: #444;
+    text-align: center;
+}
+
+/* Main Layout */
+.main-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 20px;
+    max-width: 100%;
+    margin: 20px; /* Prevent overlap with nav */
+}
+
+/* Toolbar Styling */
+.left-toolbar, .right-toolbar {
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    width: 200px;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Buttons inside Toolbar */
+.left-toolbar button, .right-toolbar button {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 12px 10px;
+    margin: 8px 0;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s ease-in-out;
+    font-size: 15px;
+    width: 50%;
+}
+
+.left-toolbar button:hover, .right-toolbar button:hover {
+    background: #0056b3;
+}
+
+/* Canvas Area */
+.workspace {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 90%;
+}
+
+canvas {
+    border: 2px solid #ccc;
+    border-radius: 10px;
+    background: white;
+    cursor: crosshair;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Save Button */
+.save-container {
+    margin-top: 10px;
+}
+
+.save-container button {
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 12px 22px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s ease-in-out;
+    font-size: 16px;
+}
+
+.save-container button:hover {
+    background: #218838;
+}
+.right-section {
+    display: flex;
+    flex-direction: column;  /* Stack toolbar and button */
+    align-items: center;  /* Center them */
+}
+
+/* Styling for the Home Button */
+.home-button-container {
+    margin-top: 15px; /* Space from the toolbar */
+}
+
+.home-button-container button {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 12px 22px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s ease-in-out;
+    font-size: 16px;
+    width: 150px; /* Adjust width */
+}
+
+.home-button-container button:hover {
+    background: #0056b3;
+}
+
+
+
+</style>
+</head>
+<body>
+
+<h1>Draw Here!</h1>
+<div class="main-container">
+    <div class="left-toolbar">
+        <button onclick="setTool('pencil')">✏️ Pencil</button>
+        <button onclick="setTool('rectangle')">⬛ Rectangle</button>
+        <button onclick="setTool('circle')">⚪ Circle</button>
+        <button onclick="setTool('line')">📏 Line</button>
+        <button onclick="setTool('triangle')">🔺 Triangle</button>
+        <button onclick="setTool('ellipse')">⭕ Ellipse</button>
+    </div>
+    <div class="workspace">
+        <div class="canvas-container">
+        <canvas id="drawingCanvas" width="700" height="500"></canvas>
+        </div>
+    </div>
+    <!-- Wrap Right Toolbar and Home Button Together -->
+<div class="right-section">
+    <div class="right-toolbar">
+        <button onclick="setTool('eraser')">🧽 Eraser</button>
+        <label>🎨 Color: <input type="color" id="colorPicker" value="#000000"></label>
+        <label>🖌 Thickness: <input type="number" id="thickness" value="2" min="1" max="10"></label>
+        <label>🖼 Fill: <input type="checkbox" id="fillToggle"></label>
+        <button onclick="undo()">↩️ Undo</button>
+        <button onclick="redo()">↪️ Redo</button>
+        <button onclick="clearCanvas()">🗑 Clear</button>
+    </div>
+
+    <!-- Home Button Below Toolbar -->
+    <form method="get">
+    <div class="home-button-container">
+        <button type="submit" name="action" value="home">🏠 Home</button>
+    </div>
+    </form>
+</div>
+
+</div>
+<!-- Save Form -->
+
+<script>
+const canvas = document.getElementById("drawingCanvas");
+const ctx = canvas.getContext("2d");
+let drawing = false;
+let startX, startY, endX, endY;
+let history = []; // Stores previous states
+let redoStack = []; // Stores undone states
+let currentTool = "pencil"; // Default tool
+let color = "#000000";
+let fill = false;
+let thickness = 2;
+// Initial state save
+saveState();
+// Function to Save Canvas State (for Undo/Redo)
+function saveState() {
+history.push(canvas.toDataURL()); // Save current canvas state
+redoStack = []; // Clear redo stack after a new drawing
+}
+// Tool Selection
+function setTool(tool) {
+currentTool = tool;
+}
+// Color Picker
+document.getElementById("colorPicker").addEventListener("input", (e) => {
+color = e.target.value;
+});
+// Fill Toggle
+document.getElementById("fillToggle").addEventListener("change", (e) => {
+fill = e.target.checked;
+});
+// Thickness Selector
+document.getElementById("thickness").addEventListener("input", (e) => {
+thickness = e.target.value;
+});
+// Mouse Down - Start Drawing
+canvas.addEventListener("mousedown", (e) => {
+saveState(); // Save state before drawing starts
+drawing = true;
+startX = e.offsetX;
+startY = e.offsetY;
+if (currentTool === "pencil" || currentTool === "eraser") {
+ctx.beginPath();
+ctx.moveTo(startX, startY);
+}
+});
+// Mouse Move - Draw (Only for Pencil & Eraser)
+canvas.addEventListener("mousemove", (e) => {
+if (!drawing) return;
+ctx.strokeStyle = currentTool === "eraser" ? "#FFFFFF" : color;
+ctx.lineWidth = thickness;
+if (currentTool === "pencil" || currentTool === "eraser") {
+ctx.lineTo(e.offsetX, e.offsetY);
+ctx.stroke();
+}
+});
+// Mouse Up - Finish Drawing
+canvas.addEventListener("mouseup", (e) => {
+if (!drawing) return;
+drawing = false;
+endX = e.offsetX;
+endY = e.offsetY;
+ctx.strokeStyle = color;
+ctx.fillStyle = color;
+ctx.lineWidth = thickness;
+ctx.beginPath();
+if (currentTool === "rectangle") {
+if (fill) ctx.fillRect(startX, startY, endX - startX, endY - startY);
+else ctx.strokeRect(startX, startY, endX - startX, endY - startY);
+} else if (currentTool === "circle") {
+let radius = Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2));
+ctx.arc(startX, startY, radius, 0, Math.PI * 2);
+if (fill) ctx.fill();
+else ctx.stroke();
+} else if (currentTool === "line") {
+ctx.moveTo(startX, startY);
+ctx.lineTo(endX, endY);
+ctx.stroke();
+} else if (currentTool === "triangle") {
+ctx.moveTo(startX, startY);
+ctx.lineTo(startX - (endX - startX), endY);
+ctx.lineTo(endX, endY);
+ctx.closePath();
+if (fill) ctx.fill();
+else ctx.stroke();
+} else if (currentTool === "ellipse") {
+ctx.ellipse(startX, startY, Math.abs(endX - startX), Math.abs(endY - startY), 0, 0, Math.PI *
+2);
+if (fill) ctx.fill();
+else ctx.stroke();
+}
+saveState(); // Save final state after drawing
+});
+// Mouse Leave - Stop Drawing
+canvas.addEventListener("mouseleave", () => {
+drawing = false;
+});
+// Undo Function
+function undo() {
+if (history.length > 1) { // Ensure there's something to undo
+redoStack.push(history.pop()); // Move last state to redo stack
+restoreCanvas();
+}
+}
+// Redo Function
+function redo() {
+if (redoStack.length > 0) {
+history.push(redoStack.pop()); // Move state back to history
+restoreCanvas();
+}
+}
+// Restore Canvas from Last Saved State
+function restoreCanvas() {
+let img = new Image();
+if (history.length > 0) {
+img.src = history[history.length - 1]; // Get last saved state
+} else {
+ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear if no history
+return;
+}
+img.onload = function () {
+ctx.clearRect(0, 0, canvas.width, canvas.height);
+ctx.drawImage(img, 0, 0);
+};
+}
+// Clear Canvas
+function clearCanvas() {
+ctx.clearRect(0, 0, canvas.width, canvas.height);
+history = [];
+redoStack = [];
+}
+// Save Image to Django Form
+function prepareSave() {
+let imageData = canvas.toDataURL("image/png");
+document.getElementById("imageData").value = imageData;
+}
+
+
+</script>
+</body>
+</html>
+
